@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pistola de Corazones</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background: radial-gradient(circle at top center, #2a1a3f 0%, #1a0a2f 50%, #0a0015 100%);
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #pistol {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 240px;
+            height: 140px;
+            display: none;
+        }
+        .cabin {
+            width: 80px;
+            height: 120px;
+            position: absolute;
+            top: 10px;
+            left: 0;
+            border: 5px double #d70024;
+            background: linear-gradient(to bottom, #3C2F2F, #1A1A1A);
+            box-shadow: 0 6px 14px rgba(255, 215, 0, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .cabin-window {
+            width: 60px;
+            height: 80px;
+            position: absolute;
+            top: 35px;
+            left: 10px;
+            background-image: url('img/1.png');
+            background-size: 90% auto;
+            background-repeat: no-repeat;
+            background-position: center top;
+            transform: scaleX(-1);
+            border-radius: 5px;
+        }
+        .cabin-cover {
+            width: 60px;
+            height: 40px;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: linear-gradient(to bottom, #3C2F2F, #1A1A1A);
+            border: 2px solid #ff0062;
+        }
+        .barrel {
+            background: #333333;
+            width: 150px;
+            height: 30px;
+            position: absolute;
+            top: 55px;
+            left: 80px;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            transform-origin: left center;
+            transition: transform 0.5s ease;
+        }
+        .barrel-tip {
+            background: #333333;
+            width: 10px;
+            height: 20px;
+            position: absolute;
+            top: 5px;
+            right: -10px;
+            border: 2px solid #000000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        .handle {
+            background: #333333;
+            width: 50px;
+            height: 70px;
+            position: absolute;
+            top: 40px;
+            left: 90px;
+            border: 2px solid #000000;
+            border-radius: 10px 10px 30px 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        .base {
+            background: #555555;
+            width: 60px;
+            height: 20px;
+            position: absolute;
+            bottom: 10px;
+            left: 80px;
+            border: 2px solid #000000;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        }
+        .trigger {
+            background: #555555;
+            width: 15px;
+            height: 30px;
+            position: absolute;
+            top: 70px;
+            left: 130px;
+            border: 2px solid #000000;
+            border-radius: 5px;
+        }
+        .magazine {
+            background: #333333;
+            width: 40px;
+            height: 50px;
+            position: absolute;
+            top: 80px;
+            left: 100px;
+            clip-path: polygon(50% 0%, 100% 30%, 100% 100%, 0% 100%, 0% 30%);
+            border: 2px solid #000000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .magazine-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #bb00ff;
+            transition: height 0.2s ease;
+        }
+        #button, #restart {
+            position: absolute;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-family: 'Dancing Script', cursive;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(to bottom, #800000, #4B0000);
+            color: white;
+            border: 2px solid #1e0147;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+            transition: background 0.3s ease, transform 0.3s ease;
+            display: none;
+        }
+        #button:hover, #restart:hover {
+            background: linear-gradient(to bottom, #A00000, #600000);
+            transform: scale(1.05);
+        }
+        #button {
+            left: 0;
+            top: calc(50% + 90px);
+        }
+        #restart {
+            left: 150px;
+            top: calc(50% + 90px);
+        }
+        .heart-piece {
+            position: absolute;
+            font-size: 16px;
+            transform: scale(0.6);
+            transition: left 0.8s ease-out, top 0.8s ease-out, transform 0.8s ease-out, opacity 0.8s ease-out;
+            color: #ff69b4;
+            opacity: 0;
+            filter: drop-shadow(0 0 5px #ff0000) drop-shadow(0 0 10px #ff1493);
+        }
+        .heart-piece.visible {
+            opacity: 1;
+        }
+        #target-image {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: float 2s ease-in-out infinite;
+            transition: opacity 0.3s ease;
+            border: none;
+            background-color: transparent;
+            display: none;
+        }
+        #new-image {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border: none;
+            background-color: transparent;
+            animation: float 2s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        .explosion {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,1), rgba(255,255,255,0.8), rgba(255,255,255,0));
+            pointer-events: none;
+            box-shadow: 0 0 30px 15px rgba(255,255,255,0.7);
+            transform: translate(-50%, -50%);
+        }
+        @keyframes flashAnim {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            20% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            80% {
+                transform: translate(-50%, -50%) scale(1.2);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0;
+            }
+        }
+        .message {
+            position: absolute;
+            font-size: 36px;
+            font-family: 'Dancing Script', cursive;
+            font-weight: 700;
+            color: #ff69b4;
+            text-shadow: 0 0 10px #ff1493, 0 0 20px #ff69b4, 0 0 30px #ff0000;
+            opacity: 0;
+            transition: opacity 1s ease, transform 1s ease;
+            transform: translate(-50%, 20px);
+        }
+        .message.visible {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+        .input-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 400px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            padding: 20px;
+            text-align: center;
+            font-family: 'Dancing Script', cursive;
+        }
+        .input-panel header {
+            padding: 15px;
+            background: linear-gradient(45deg, #ff0057, #ff4e7a);
+            color: white;
+            font-size: 1.5em;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
+        .input-panel p {
+            color: #333;
+            font-size: 1.2em;
+            margin: 15px 0;
+            font-family: 'Arial', sans-serif;
+        }
+        .input-panel input {
+            width: calc(100% - 24px);
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 12px;
+            border: none;
+            background: #f0f0f0;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+            font-size: 1em;
+        }
+        .input-panel input:focus {
+            outline: none;
+            box-shadow: 0 0 8px rgba(255, 0, 87, 0.5);
+        }
+        .input-panel button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-family: 'Dancing Script', cursive;
+            font-weight: 700;
+            cursor: pointer;
+            background: linear-gradient(45deg, #ff0057, #ff4e7a);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .input-panel button:hover {
+            background: linear-gradient(45deg, #e0004d, #e83765);
+            transform: scale(1.05);
+        }
+        .timer {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            font-size: 0.9em;
+            color: #333;
+            font-family: 'Arial', sans-serif;
+            z-index: 1000;
+            display: none;
+        }
+        .timer span {
+            color: #ff0057;
+            font-weight: bold;
+        }
+        @media (max-width: 600px) {
+            .input-panel {
+                width: 95%;
+            }
+            .timer {
+                font-size: 0.8em;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="input-panel" id="inputPanel">
+        <header>Ingresa tu ID</header>
+        <p>Ingresa el usuario </p>
+        <input type="text" id="usuarioInput" placeholder="Ej: miusuario123">
+        <button onclick="verificarUsuario()">Entrar</button>
+    </div>
+    <div id="pistol">
+        <div class="cabin">
+            <div class="cabin-window"></div>
+            <div class="cabin-cover"></div>
+        </div>
+        <div class="barrel">
+            <div class="barrel-tip"></div>
+        </div>
+        <div class="handle"></div>
+        <div class="base"></div>
+        <div class="trigger"></div>
+        <div class="magazine">
+            <div class="magazine-fill"></div>
+        </div>
+    </div>
+    <div id="target-image"></div>
+    <button id="button" onclick="startShooting()">Encender</button>
+    <button id="restart" onclick="restartShooting()">Reiniciar</button>
+    <div class="timer" id="timer">Tiempo restante: <span id="timeLeft">08:00:00</span></div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+    <script>
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAvXX3WmnXH36z0JPh3rXul0NFnslCQLlI",
+            authDomain: "ling-personaizado.firebaseapp.com",
+            projectId: "ling-personaizado",
+            storageBucket: "ling-personaizado.appspot.com",
+            messagingSenderId: "87311498492",
+            appId: "1:87311498492:web:d6d42825a1ab57c918ab79",
+            measurementId: "G-DHQHGWYC6S",
+            databaseURL: "https://ling-personaizado-default-rtdb.firebaseio.com/"
+        };
+
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Variables para almacenar datos de Firebase
+        let nombreUsuario = '';
+        let imagenUrl = '';
+
+        // Función para actualizar el temporizador
+        function actualizarTemporizador(timestamp) {
+            const timerElement = document.getElementById('timeLeft');
+            const now = Date.now();
+            const tiempoTranscurrido = Math.floor((now - timestamp) / 1000); // Tiempo transcurrido en segundos
+            const tiempoRestante = Math.max(0, 28800 - tiempoTranscurrido); // 8 horas = 28800 segundos
+            const horas = Math.floor(tiempoRestante / 3600);
+            const minutos = Math.floor((tiempoRestante % 3600) / 60);
+            const segundos = tiempoRestante % 60;
+            timerElement.textContent = `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
+
+            if (tiempoRestante <= 0) {
+                clearInterval(temporizadorInterval);
+                document.getElementById('timer').style.display = 'none';
+                alert('⏰ El tiempo ha expirado. Los datos han sido eliminados después de 8 horas.');
+                window.location.reload();
+            }
+        }
+
+        let temporizadorInterval;
+
+        // Verificar usuario al cargar la plantilla
+        async function verificarUsuario() {
+            const usuario = document.getElementById('usuarioInput').value.trim().toLowerCase();
+            if (!usuario) {
+                alert("❌ Debes ingresar un usuario único.");
+                return;
+            }
+
+            try {
+                const snapshot = await database.ref("usuarios/" + usuario).once("value");
+                if (snapshot.exists()) {
+                    const datos = snapshot.val();
+                    nombreUsuario = datos.nombre;
+                    imagenUrl = datos.imagen;
+                    const timestamp = datos.timestamp;
+
+                    // Posicionar la imagen inicial (2.png) arriba del corazón
+                    const heartSize = 300;
+                    const centerX = window.innerWidth / 2 - heartSize / 2;
+                    const centerY = window.innerHeight / 2 - heartSize / 2;
+                    const targetWidth = 200;
+                    const targetHeight = 200;
+                    const targetOffset = 50;
+                    const targetX = centerX + heartSize / 2;
+                    const targetY = centerY - targetHeight - targetOffset;
+
+                    const targetImage = document.getElementById('target-image');
+                    targetImage.style.left = `${targetX - targetWidth / 2}px`;
+                    targetImage.style.top = `${targetY}px`;
+                    targetImage.style.backgroundImage = `url('img/2.png')`;
+                    targetImage.style.display = 'block';
+                    targetImage.style.opacity = '1';
+
+                    document.getElementById('inputPanel').style.display = 'none';
+                    document.getElementById('pistol').style.display = 'block';
+                    document.getElementById('button').style.display = 'block';
+                    document.getElementById('timer').style.display = 'block';
+                    actualizarTemporizador(timestamp);
+                    temporizadorInterval = setInterval(() => actualizarTemporizador(timestamp), 1000);
+                } else {
+                    alert("❌ El usuario no existe en la base de datos.");
+                }
+            } catch (error) {
+                console.error("Error al consultar la base de datos:", error);
+                alert("❌ Error al conectar con la base de datos. Revisa la consola.");
+            }
+        }
+
+        // Reducir puntos para rendimiento
+        const numPoints = 100;
+        const positions = [];
+        for (let i = 0; i < numPoints; i++) {
+            let t = 2 * Math.PI * i / numPoints;
+            let x = 16 * Math.pow(Math.sin(t), 3);
+            let y = 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t);
+            positions.push({x, y});
+        }
+
+        // Normalizar posiciones
+        let minX = Math.min(...positions.map(p => p.x));
+        let maxX = Math.max(...positions.map(p => p.x));
+        let minY = Math.min(...positions.map(p => p.y));
+        let maxY = Math.max(...positions.map(p => p.y));
+        positions.forEach(p => {
+            p.x = (p.x - minX) / (maxX - minX);
+            p.y = (maxY - p.y) / (maxY - minY);
+        });
+
+        let totalShots = numPoints + 2; // Heart shots + 2 special shots
+        let shotCount = 0;
+        let magazineFill;
+
+        function updateMagazine() {
+            magazineFill.style.height = `${((totalShots - shotCount) / totalShots * 100)}%`;
+        }
+
+        function startShooting() {
+            const button = document.getElementById('button');
+            button.disabled = true;
+            button.textContent = 'Disparando...';
+
+            // Limpiar corazones existentes
+            document.querySelectorAll('.heart-piece, .explosion, .message').forEach(el => el.remove());
+            const newImage = document.getElementById('new-image');
+            if (newImage) newImage.remove();
+
+            const heartSize = 300;
+            const centerX = window.innerWidth / 2 - heartSize / 2;
+            const centerY = window.innerHeight / 2 - heartSize / 2;
+            const targetWidth = 200;
+            const targetHeight = 200;
+            const targetOffset = 50;
+            const targetX = centerX + heartSize / 2;
+            const targetY = centerY - targetHeight - targetOffset;
+            let index = 0;
+
+            const barrel = document.querySelector('.barrel');
+            const barrelRect = barrel.getBoundingClientRect();
+            const barrelBaseX = barrelRect.left + barrelRect.width;
+            const barrelBaseY = barrelRect.top + barrelRect.height / 2;
+
+            // Asegurar que la imagen inicial esté en la posición correcta
+            const targetImage = document.getElementById('target-image');
+            targetImage.style.left = `${targetX - targetWidth / 2}px`;
+            targetImage.style.top = `${targetY}px`;
+            targetImage.style.display = 'block';
+            targetImage.style.opacity = '1';
+
+            shotCount = 0;
+            magazineFill = document.querySelector('.magazine-fill');
+            updateMagazine();
+
+            const interval = setInterval(() => {
+                if (index >= positions.length) {
+                    clearInterval(interval);
+                    barrel.style.transform = 'rotate(0deg)';
+
+                    // Primer disparo: hacia la imagen arriba
+                    setTimeout(() => {
+                        // Apuntar hacia la imagen
+                        const firstTargetX = targetX;
+                        const firstTargetY = targetY + targetHeight / 2;
+                        const deltaX = firstTargetX - barrelBaseX;
+                        const deltaY = firstTargetY - barrelBaseY;
+                        const angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+                        barrel.style.transform = `rotate(${Math.min(Math.max(angle, -30), 30)}deg)`;
+
+                        // Disparar después de 2 segundos
+                        setTimeout(() => {
+                            let firstShot = document.createElement('div');
+                            firstShot.classList.add('heart-piece');
+                            firstShot.innerHTML = '❤️';
+                            firstShot.style.fontSize = '32px';
+
+                            const currentBarrelRect = document.querySelector('.barrel').getBoundingClientRect();
+                            firstShot.style.left = `${currentBarrelRect.right}px`;
+                            firstShot.style.top = `${currentBarrelRect.top + currentBarrelRect.height / 2}px`;
+
+                            document.body.appendChild(firstShot);
+                            firstShot.offsetHeight;
+
+                            firstShot.classList.add('visible');
+                            firstShot.style.left = `${firstTargetX}px`;
+                            firstShot.style.top = `${firstTargetY}px`;
+                            firstShot.style.transform = 'scale(2.0)';
+
+                            shotCount++;
+                            updateMagazine();
+
+                            firstShot.addEventListener('transitionend', () => {
+                                let flash = document.createElement('div');
+                                flash.classList.add('explosion');
+                                flash.style.left = `${firstTargetX}px`;
+                                flash.style.top = `${firstTargetY}px`;
+                                flash.style.animation = 'flashAnim 1s ease-in-out';
+                                document.body.appendChild(flash);
+
+                                setTimeout(() => {
+                                    targetImage.style.opacity = '0';
+                                    let newImage = document.createElement('div');
+                                    newImage.id = 'new-image';
+                                    newImage.style.left = `${targetX - targetWidth / 2}px`;
+                                    newImage.style.top = `${targetY}px`;
+                                    newImage.style.backgroundImage = `url('${imagenUrl}')`;
+                                    document.body.appendChild(newImage);
+                                    setTimeout(() => {
+                                        newImage.style.opacity = '1';
+                                    }, 100);
+                                }, 100);
+
+                                flash.addEventListener('animationend', () => {
+                                    flash.remove();
+                                });
+
+                                firstShot.remove();
+                            });
+
+                            // Segundo disparo: hacia abajo del corazón
+                            setTimeout(() => {
+                                // Apuntar hacia abajo del corazón
+                                const secondTargetX = centerX + heartSize / 2;
+                                const secondTargetY = centerY + heartSize + 50;
+                                const deltaX2 = secondTargetX - barrelBaseX;
+                                const deltaY2 = secondTargetY - barrelBaseY;
+                                const angle2 = Math.atan2(deltaY2, deltaX2) * 180 / Math.PI;
+                                barrel.style.transform = `rotate(${Math.min(Math.max(angle2, -30), 30)}deg)`;
+
+                                // Disparar después de 2 segundos
+                                setTimeout(() => {
+                                    let secondShot = document.createElement('div');
+                                    secondShot.classList.add('heart-piece');
+                                    secondShot.innerHTML = '❤️';
+                                    secondShot.style.fontSize = '32px';
+
+                                    const currentBarrelRect2 = document.querySelector('.barrel').getBoundingClientRect();
+                                    secondShot.style.left = `${currentBarrelRect2.right}px`;
+                                    secondShot.style.top = `${currentBarrelRect2.top + currentBarrelRect2.height / 2}px`;
+
+                                    document.body.appendChild(secondShot);
+                                    secondShot.offsetHeight;
+
+                                    secondShot.classList.add('visible');
+                                    secondShot.style.left = `${secondTargetX}px`;
+                                    secondShot.style.top = `${secondTargetY}px`;
+                                    secondShot.style.transform = 'scale(2.0)';
+
+                                    shotCount++;
+                                    updateMagazine();
+
+                                    secondShot.addEventListener('transitionend', () => {
+                                        let flash = document.createElement('div');
+                                        flash.classList.add('explosion');
+                                        flash.style.left = `${secondTargetX}px`;
+                                        flash.style.top = `${secondTargetY}px`;
+                                        flash.style.animation = 'flashAnim 1s ease-in-out';
+                                        document.body.appendChild(flash);
+
+                                        let message = document.createElement('div');
+                                        message.classList.add('message');
+                                        message.textContent = `I LOVE YOU ${nombreUsuario} 💕🥰`;
+                                        message.style.left = `${secondTargetX}px`;
+                                        message.style.top = `${secondTargetY}px`;
+                                        document.body.appendChild(message);
+                                        setTimeout(() => {
+                                            message.classList.add('visible');
+                                        }, 100);
+
+                                        flash.addEventListener('animationend', () => {
+                                            flash.remove();
+                                        });
+
+                                        secondShot.remove();
+                                        button.textContent = 'Terminado';
+                                        document.getElementById('restart').style.display = 'block';
+                                    });
+                                }, 2000);
+                            }, 2000);
+                        }, 2000);
+                    }, 2000);
+
+                    return;
+                }
+
+                // Disparar un corazón continuo
+                let emoji = document.createElement('div');
+                emoji.classList.add('heart-piece');
+                emoji.innerHTML = '❤️';
+
+                const currentBarrelRect = document.querySelector('.barrel').getBoundingClientRect();
+                emoji.style.left = `${currentBarrelRect.right}px`;
+                emoji.style.top = `${currentBarrelRect.top + currentBarrelRect.height / 2}px`;
+
+                document.body.appendChild(emoji);
+                emoji.offsetHeight;
+
+                const heartTargetX = centerX + positions[index].x * heartSize;
+                const heartTargetY = centerY + positions[index].y * heartSize;
+
+                const deltaX = heartTargetX - barrelBaseX;
+                const deltaY = heartTargetY - barrelBaseY;
+                const angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+                barrel.style.transform = `rotate(${Math.min(Math.max(angle, -30), 30)}deg)`;
+
+                emoji.classList.add('visible');
+                emoji.style.left = `${heartTargetX}px`;
+                emoji.style.top = `${heartTargetY}px`;
+                emoji.style.transform = 'scale(1.5)';
+
+                shotCount++;
+                updateMagazine();
+
+                index++;
+            }, 100);
+        }
+
+        function restartShooting() {
+            window.location.reload(); // Reload the page to reset everything
+        }
+    </script>
+</body>
+</html>
